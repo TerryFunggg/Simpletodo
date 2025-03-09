@@ -29,6 +29,10 @@ require `pyinstaller`
 ```bash
 pip install pyinstaller
 ```
+Install pacakges
+```bash
+pip install -r requirements.txt
+```
 
 ```bash
 make 
