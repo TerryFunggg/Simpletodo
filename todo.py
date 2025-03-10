@@ -38,7 +38,7 @@ def add_task(task, status='TODO', content=''):
     print("Task added successfully!")
 
 # List tasks
-def list_tasks():
+def list_tasks(show_dates=False):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM tasks')
@@ -46,7 +46,10 @@ def list_tasks():
     conn.close()
     if tasks:
         table = PrettyTable()
-        table.field_names = ["ID", "Task", "Status", "Content", "Create Date", "Last Updated Date"]
+        if show_dates:
+            table.field_names = ["ID", "Task", "Status", "Content", "Create Date", "Last Updated Date"]
+        else:
+            table.field_names = ["ID", "Task", "Status", "Content"]
         for task in tasks:
             status = task[2]
             if status == 'TODO':
@@ -59,7 +62,10 @@ def list_tasks():
                 status_colored = colored(status, 'red')
             else:
                 status_colored = status
-            table.add_row([task[0], task[1], status_colored, task[3], task[4], task[5]])
+            if show_dates:
+                table.add_row([task[0], task[1], status_colored, task[3], task[4], task[5]])
+            else:
+                table.add_row([task[0], task[1], status_colored, task[3]])
         print(table)
     else:
         print("No tasks found.")
@@ -93,6 +99,7 @@ def main():
     parser.add_argument('task_or_id', nargs='?', help='Task description (for add action) or Task ID (for delete/update action)')
     parser.add_argument('--status', choices=['TODO', 'HOLD', 'DONE', 'CANCELED'], help='Task status (for update action)')
     parser.add_argument('--content', help='Task content (for add/update content action)')
+    parser.add_argument('--date', action='store_true', help='Show dates in the task list')
 
     args = parser.parse_args()
 
@@ -102,7 +109,7 @@ def main():
         else:
             print("Task description is required for add action.")
     elif args.action == 'list':
-        list_tasks()
+        list_tasks(show_dates=args.date)
     elif args.action == 'delete':
         if args.task_or_id:
             delete_task(int(args.task_or_id))
